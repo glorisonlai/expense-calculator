@@ -1,4 +1,4 @@
-type NormalisedAmount = number;
+export type NormalisedAmount = number;
 
 export type Account = {
     type: AccountType,
@@ -11,17 +11,17 @@ type StandardTime = number;
 
 export enum AccountType {
     Income,
-    Expense
+    Expense,
 }
 
 enum Timespan {
-    Week: 1/4,
-    Month: 1,
-    Quarter: 3,
-    Year: 52,
+    Week = 1/4,
+    Month = 1,
+    Quarter = 3,
+    Year = 52,
 }
 
-export const createAccount = (type: AccountType, title: string, description: string, amount: NormalisedAccount): Account => (
+export const createAccount = (type: AccountType, title: string, description: string, amount: NormalisedAmount): Account => (
     {
         type,
         amount,
