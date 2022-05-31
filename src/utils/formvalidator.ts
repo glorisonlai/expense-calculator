@@ -22,8 +22,8 @@ const checkValid = ({ element, validators = [] }: {element: Element, validators:
   };
 }
 
-export const useForm = ({ errorClass }: {errorClass: string}) => {
-  const [errors, setErrors] = createStore({}),
+export const useForm = ({ form, errorClass }: {form: {[key: string]: string}, errorClass: string}) => {
+  const [errors, setErrors] = createStore(form),
     fields = {};
 
   const validate = (ref: Reference, accessor) => {

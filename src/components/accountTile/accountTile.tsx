@@ -1,17 +1,28 @@
 import type {Account} from 'models/account';
+import type {Component} from 'solid-js';
 
-export type AccountTileState = {
-	hidden: boolean,
-	index: number,
-}
-
-const AccountTile: JSX.Element<{id: number, account: Account, hidden: boolean}> = (props) => {
+const AccountTile: Component<{
+	id: number, 
+	account: Account, 
+	disabled: boolean,
+	toggleAccount: Function,
+	updateAccount: Function,
+	deleteAccount: Function,
+}> = ({
+	id, 
+	account, 
+	disabled,
+	toggleAccount,
+	updateAccount,
+	deleteAccount,
+}) => {
     return (
-        <div>
-            <input type="checkbox"/>
-            <h1>{props.account.title}</h1>
-            <h2>{props.account.description}</h2>
-            <h2>{props.account.amount}</h2>
+        <div id={`tile-${id}`} class={`${disabled && 'disabled'}`} onclick={() => updateAccount()}>
+            <input type="checkbox" checked={disabled} onchange={() => toggleAccount()}/>
+            <button onclick={() => deleteAccount()}> Delete </button>
+            <h1>{account.title}</h1>
+            <h2>{account.description}</h2>
+            <h2>{account.amount}</h2>
         </div>
        )
 }

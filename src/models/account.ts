@@ -1,38 +1,39 @@
-export type NormalisedAmount = number;
+import type {Timespan} from 'utils/time';
 
-export type Account = {
-    type: AccountType,
-    amount: NormalisedAmount,
-    title: string,
-    description?: string,
-}
-
-type StandardTime = number;
+type NormalisedAmount = number;
 
 export enum AccountType {
     Income,
     Expense,
 }
 
-enum Timespan {
-    Week = 1/4,
-    Month = 1,
-    Quarter = 3,
-    Year = 52,
+export interface Account {
+    readonly type: AccountType;
+    readonly amount: NormalisedAmount;
+    readonly title: string;
+	readonly timespan: Timespan;
+    readonly description?: string;
 }
 
-export const createAccount = (type: AccountType, title: string, description: string, amount: NormalisedAmount): Account => (
+export interface IncomeAccount extends Account {
+	type: AccountType.Income
+}
+
+export interface ExpenseAccount extends Account {
+	type: AccountType.Expense
+}
+
+export const createAccount = (type: AccountType, title: string, timespan: Timespan, description: string, amount: NormalisedAmount): Account => (
     {
         type,
         amount,
         title,
+		timespan,
         description
     }
 )
 
+export const convertNumToNormalisedAmount = (num: number, span: Timespan): NormalisedAmount => num / span
 
-const ConvertTimeToStandardTime = (val: number, span: Timespan): StandardTime => val * span
-
-const ConvertStandardTimeToTime = (val: StandardTime, span: Timespan): number => val / span
-
+export const convertNormalisedAmountToNum = (amount: NormalisedAmount, span: Timespan): number => amount * span
 

@@ -1,7 +1,7 @@
 import type { Component } from 'solid-js';
 
 import Header from 'components/header/header';
-import Calculator from 'components/calculator/calculator';
+import AccountSheet from 'pages/accountSheet';
 
 import styles from 'styles/app.module.scss';
 
@@ -9,7 +9,7 @@ const App: Component = () => {
   return (
     <div class={styles.App}>
 		<Header />
-        <Calculator />
+        <AccountSheet />
     </div>
   );
 };
