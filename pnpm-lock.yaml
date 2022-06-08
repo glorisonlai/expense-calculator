@@ -1,6 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@types/sass': ^1.43.1
   sass: ^1.52.1
   solid-js: ^1.4.2
   typescript: ^4.6.4
@@ -13,6 +14,7 @@ dependencies:
   solid-js: 1.4.2
 
 devDependencies:
+  '@types/sass': 1.43.1
   typescript: 4.6.4
   vite: 2.9.9_sass@1.52.1
   vite-plugin-solid: 2.2.6_sass@1.52.1
@@ -362,6 +364,16 @@ packages:
     dependencies:
       '@jridgewell/resolve-uri': 3.0.5
       '@jridgewell/sourcemap-codec': 1.4.11
+    dev: true
+
+  /@types/node/17.0.39:
+    resolution: {integrity: sha512-JDU3YLlnPK3WDao6/DlXLOgSNpG13ct+CwIO17V8q0/9fWJyeMJJ/VyZ1lv8kDprihvZMydzVwf0tQOqGiY2Nw==}
+    dev: true
+
+  /@types/sass/1.43.1:
+    resolution: {integrity: sha512-BPdoIt1lfJ6B7rw35ncdwBZrAssjcwzI5LByIrYs+tpXlj/CAkuVdRsgZDdP4lq5EjyWzwxZCqAoFyHKFwp32g==}
+    dependencies:
+      '@types/node': 17.0.39
     dev: true
 
   /ansi-styles/3.2.1:

@@ -3,8 +3,8 @@ import type {Timespan} from 'utils/time';
 type NormalisedAmount = number;
 
 export enum AccountType {
-    Income,
-    Expense,
+    Income = "Income",
+	Expense = "Expense",
 }
 
 export interface Account {

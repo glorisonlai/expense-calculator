@@ -1,6 +1,6 @@
 import { createStore } from "solid-js/store";
 
-const checkValid = ({ element, validators = [] }: {element: Element, validators: Function[]}, setErrors, errorClass: Error) => {
+const checkValid = ({ element, validators = [] }: {element: HTMLInputElement, validators: Function[]}, setErrors: Function, errorClass: string) => {
   return async () => {
     element.setCustomValidity("");
     element.checkValidity();
@@ -22,41 +22,50 @@ const checkValid = ({ element, validators = [] }: {element: Element, validators:
   };
 }
 
-export const useForm = ({ form, errorClass }: {form: {[key: string]: string}, errorClass: string}) => {
-  const [errors, setErrors] = createStore(form),
-    fields = {};
+export const useForm = <F>({ form, errorClass }: {form: F, errorClass: string}) => {
+	const newErrorObj = Object.keys(form).
+							reduce((errorObj, key) => (
+								{...errorObj, [key]: ''}
+							), {});
 
-  const validate = (ref: Reference, accessor) => {
-    const validators = accessor() || [];
-    let config;
-    fields[ref.name] = config = { element: ref, validators };
-    ref.onblur = checkValid(config, setErrors, errorClass);
-    ref.oninput = () => {
-      if (!errors[ref.name]) return;
-      setErrors({ [ref.name]: undefined });
-      errorClass && ref.classList.toggle(errorClass, false);
-    };
-  };
+	const [formVals, setFormVals] = createStore<F>(form);
+	const [errors, setErrors] = createStore<{[key: keyof F]: string}>(newErrorObj);
 
-  const formSubmit = (ref, accessor) => {
-    const callback = accessor() || (() => {});
-    ref.setAttribute("novalidate", "");
-    ref.onsubmit = async (e) => {
-      e.preventDefault();
-      let errored = false;
+	const validate = (ref: HTMLInputElement, accessor: ((ref: HTMLElement) => boolean)[]) => {
+		const config = {element:ref, validators: accessor};
 
-      for (const k in fields) {
-        const field = fields[k];
-        await checkValid(field, setErrors, errorClass)();
-        if (!errored && field.element.validationMessage) {
-          field.element.focus();
-          errored = true;
-        }
-      }
-      !errored && callback(ref);
-    };
-  };
+		ref.onblur = checkValid(config, setErrors, errorClass);
 
-  return { validate, formSubmit, errors };
+		ref.oninput = () => {
+			setFormVals(ref.name, ref.value);
+
+			if (!errors[ref.name]) return;
+			setErrors({ [ref.name]: undefined });
+			errorClass && ref.classList.toggle(errorClass, false);
+		};
+	};
+
+	const formSubmit = (ref: HTMLElement, accessor: Function) => {
+	const callback = accessor() || (() => {});
+
+	ref.setAttribute("novalidate", "");
+
+	ref.onsubmit = async (e) => {
+	  e.preventDefault();
+	  let errored = false;
+
+	  for (const k in formVals) {
+		const field = form[k];
+		await checkValid(field, setErrors, errorClass)();
+		if (!errored && field.element.validationMessage) {
+		  field.element.focus();
+		  errored = true;
+		}
+	  }
+	  !errored && callback(ref);
+	};
+	};
+
+	return { formVals, validate, formSubmit, errors };
 }
 

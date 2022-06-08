@@ -2,9 +2,9 @@ import type {Component, JSX} from 'solid-js';
 
 import {onCleanup} from 'solid-js';
 
-const Modal: Component<{callback: Function, children: any}> = (props) => {
+const Modal: Component<{callback: any, children: any}> = (props) => {
 	const clickOutside = (el: HTMLElement, callback: JSX.Accessor<Function>) => {
-		const onClick = (e: HTMLElement, ev: MouseEvent) => !el.contains(e.target) && callback()?.();
+		const onClick = (e: any) => !el.contains(e.target) && callback()?.();
 
 		document.body.addEventListener("click", onClick);
 
@@ -15,8 +15,8 @@ const Modal: Component<{callback: Function, children: any}> = (props) => {
 		<div class="modal" use:clickOutside={props.callback}>
 			{props.children}
 		</div>
-	)
-}
+	);
+};
 
 export default Modal;
 

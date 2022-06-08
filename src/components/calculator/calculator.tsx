@@ -1,41 +1,43 @@
-import type {AccountState} from 'pages/accountSheet';
+import type {AccountState, AccountOrder} from 'pages/accountSheet';
+import type {IncomeAccount, ExpenseAccount} from 'models/account';
 import type {Component} from 'solid-js';
 
 import {convertNumToNormalisedAmount, convertNormalisedAmountToNum} from 'models/account';
 import { createSignal } from 'solid-js';
 import { Timespan } from 'utils/time';
+import {toCurrency} from 'utils/money';
 
-const Calculator: Component<{income: AccountState[], expenses: AccountState[]}> = ({income, expenses}) => {
-	const [timespan, setTimespan] = createSignal<Timespan>(Timespan.Month);
+const Calculator: Component<{accounts: any}> = ({accounts}) => {
+	const [timespan, setTimespan] = createSignal<Timespan>(Timespan.Week);
 
-	const accumulateAccountAmount = (sum: number, accountState: AccountState) => {
+	const accumulateNormalisedAccountAmount = (sum: number, accountState: AccountState) => {
 		if (accountState.disabled) return sum;
 
 		const {account} = accountState;
 		const normalisedAmount = convertNumToNormalisedAmount(account.amount, account.timespan);
-		return sum + convertNormalisedAmountToNum(normalisedAmount, timespan());
+		return sum + normalisedAmount;
 	}
 
-	const totalIncomeAmount = () => timespan() * income.reduce(accumulateAccountAmount, 0);
+	const totalIncomeAmount = () => timespan() * accounts.Income.reduce(accumulateNormalisedAccountAmount, 0);
 
-	const totalExpenseAmount = () => timespan() * expenses.reduce(accumulateAccountAmount, 0);
+	const totalExpenseAmount = () => timespan() * accounts.Expense.reduce(accumulateNormalisedAccountAmount, 0);
 
-	const totalNetAmount = totalIncomeAmount() - totalExpenseAmount();
+	const totalNetAmount = () =>  totalIncomeAmount() - totalExpenseAmount();
 
-	const totalNetPercent = totalExpenseAmount() / totalIncomeAmount() * 100;
+	const totalNetPercent = () => totalExpenseAmount() / totalIncomeAmount() * 100;
 
     return (
         <div>
-			<select >
+			<select onchange={(e) => setTimespan(e.target.value)}>
 				<option value={Timespan.Week}>Week</option>
 				<option value={Timespan.Month}>Month</option>
 				<option value={Timespan.Quarter}>Quarter</option>
 				<option value={Timespan.Year}>Year</option>
 			</select>
-			<h2>Total Income: {totalIncomeAmount()}</h2>
-			<h2>Total Expense: {totalExpenseAmount()}</h2>
-			<h1>Net: {totalNetAmount}</h1>
-			<h2>({totalNetPercent}%)</h2>
+			<h2>Total Income: {toCurrency(totalIncomeAmount())}</h2>
+			<h2>Total Expense: {toCurrency(totalExpenseAmount())}</h2>
+			<h1>Net: {toCurrency(totalNetAmount())}</h1>
+			<h2>({Math.round(totalNetPercent() * 10) / 10}%)</h2>
         </div>
    )
 }
