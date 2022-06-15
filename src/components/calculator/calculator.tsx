@@ -3,7 +3,7 @@ import type {IncomeAccount, ExpenseAccount} from 'models/account';
 import type {Component} from 'solid-js';
 
 import {convertNumToNormalisedAmount, convertNormalisedAmountToNum} from 'models/account';
-import { createSignal } from 'solid-js';
+import { createSignal, Show } from 'solid-js';
 import { Timespan } from 'utils/time';
 import {toCurrency} from 'utils/money';
 
@@ -26,8 +26,8 @@ const Calculator: Component<{accounts: any}> = ({accounts}) => {
 
 	const totalNetPercent = () => totalExpenseAmount() / totalIncomeAmount() * 100;
 
-    return (
-        <div>
+	return (
+		<div>
 			<select onchange={(e) => setTimespan(e.target.value)}>
 				<option value={Timespan.Week}>Week</option>
 				<option value={Timespan.Month}>Month</option>
@@ -37,9 +37,11 @@ const Calculator: Component<{accounts: any}> = ({accounts}) => {
 			<h2>Total Income: {toCurrency(totalIncomeAmount())}</h2>
 			<h2>Total Expense: {toCurrency(totalExpenseAmount())}</h2>
 			<h1>Net: {toCurrency(totalNetAmount())}</h1>
-			<h2>({Math.round(totalNetPercent() * 10) / 10}%)</h2>
-        </div>
-   )
+			<Show when={totalIncomeAmount() > 0}>
+				<h2>({Math.round(totalNetPercent() * 10) / 10}%)</h2>
+			</Show>
+		</div>
+	);
 }
 
 export default Calculator;

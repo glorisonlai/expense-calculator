@@ -18,6 +18,7 @@ const AccountTile: Component<{
 	updateAccount,
 	deleteAccount,
 }) => {
+
 	const timeLabels = (time: Timespan) => {
 		switch(time) {
 			case(Timespan.Week): 
@@ -34,12 +35,14 @@ const AccountTile: Component<{
 	}
 
     return (
-        <div style={{background: disabled() ? 'gray': 'white'}} id={`tile-${id}`} class={`${disabled && 'disabled'}`} onclick={() => updateAccount()}>
+        <div style={{background: disabled() ? 'gray': 'white'}} id={`tile-${id}`} class={`${disabled() && 'disabled'}`} >
             <input type="checkbox" checked={disabled()} onchange={() => toggleAccount()}/>
             <button onclick={() => deleteAccount()}> Delete </button>
-            <h1>{account().title}</h1>
-            <h2>{account().description}</h2>
-            <h2>{account().amount}{timeLabels(account().timespan)}</h2>
+						<div onClick={() => updateAccount()}>
+		            <h1>{account().title}</h1>
+		            <h2>{account().description}</h2>
+		            <h2>{account().amount}{timeLabels(account().timespan)}</h2>
+						</div>
         </div>
        )
 }

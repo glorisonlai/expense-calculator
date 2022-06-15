@@ -17,101 +17,16 @@ export type AccountOrder = {
 }
 
 const AccountSheet = () => {
-	const rent: ExpenseAccount = {
-		type: AccountType.Expense,
-		amount: 470,
-		title: "Rent",
-		timespan: Timespan.Week,
-	}
 
-	const rentAcc = {
-		account: rent,
-		disabled: false,
-	}
-
-	const income: IncomeAccount = {
-		type: AccountType.Income,
-		amount: 72000,
-		title: "Income",
-		timespan: Timespan.Year,
-	}
-
-	const incomeAcc = {
-		account: income,
-		disabled: false,
-	}
-
-	const food: ExpenseAccount = {
-		type: AccountType.Expense,
-		amount: 50.1,
-		title: "Food",
-		timespan: Timespan.Week,
-	}
-
-	const foodAcc = {
-		account: food,
-		disabled: false,
-	}
-
-	const electricityBill: ExpenseAccount = {
-		type: AccountType.Expense,
-		amount: 1273,
-		title: "Electricity Bill",
-		timespan: Timespan.Year,
-	}
-
-	const elecAcc = {
-		account: electricityBill,
-		disabled: false,
-	}
-
-	const gasBill: ExpenseAccount = {
-		type: AccountType.Expense,
-		amount: 230,
-		title: "Gas Bill",
-		timespan: Timespan.Year,
-	}
-
-	const gasAcc = {
-		account: gasBill,
-		disabled: false,
-	}
-
-	const waterBill: ExpenseAccount = {
-		type: AccountType.Expense,
-		amount: 1008,
-		title: "Water Bill",
-		timespan: Timespan.Year,
-	}
-
-	const waterAcc = {
-		account: waterBill,
-		disabled: false,
-	}
-
-	const nbnBill: ExpenseAccount = {
-		type: AccountType.Expense,
-		amount: 70,
-		title: "NBN Bill",
-		timespan: Timespan.Month,
-	}
-
-	const nbnAcc = {
-		account: nbnBill,
-		disabled: false,
-	}
-
-	const bills = [elecAcc, gasAcc, waterAcc, nbnAcc]
 
 	const [accountsOrder, setAccountsOrder] = createStore<AccountOrder>({
-		[AccountType.Income]: [incomeAcc],
-		[AccountType.Expense]: [rentAcc, foodAcc],
+		[AccountType.Income]: [],
+		[AccountType.Expense]: [],
 	})
 
-	const editAccountsOrder = (key: AccountType) => (index: number) => (account: any) => {
+	const editAccountsOrder = (key: AccountType) => (account: any) => {
 		setAccountsOrder(
-			AccountType.Income,
-			index,
+			key,
 			account,
 		);
 	}
@@ -119,16 +34,19 @@ const AccountSheet = () => {
 
     return (
         <div>
-			<button onclick={() => {console.log(accountsOrder); setAccountsOrder(AccountType.Expense, [...accountsOrder.Expense, {account: {type: AccountType.Expense, amount: 100, timespan: Timespan.Month, title: "blah"}, disabled: false}])}}/>
-			<Calculator accounts={accountsOrder} />
-			<h1>Income</h1>
-			<hr/>
-			<AccountTileList accountStates={() => accountsOrder.Income} setAccountStates={editAccountsOrder(AccountType.Income)} />
-			{/**Make draggable size*/}
-			<div />
-			<h1>Expenses</h1>
-			<hr/>
-			<AccountTileList accountStates={() => accountsOrder.Expense} setAccountStates={editAccountsOrder(AccountType.Expense)}/>
+					<button onclick={() => {console.log(accountsOrder); setAccountsOrder(AccountType.Expense, [...accountsOrder.Expense, {account: {type: AccountType.Expense, amount: 100, timespan: Timespan.Month, title: "blah"}, disabled: false}])}}/>
+					<Calculator accounts={accountsOrder} />
+
+					<h1>Income</h1>
+					<hr/>
+					<AccountTileList accountType={AccountType.Income} accountStates={() => accountsOrder.Income} setAccountStates={editAccountsOrder(AccountType.Income)} />
+
+					{/**Make draggable size*/}
+					<div />
+
+					<h1>Expenses</h1>
+					<hr/>
+					<AccountTileList accountType={AccountType.Expense} accountStates={() => accountsOrder.Expense} setAccountStates={editAccountsOrder(AccountType.Expense)}/>
         </div>
    )
 }

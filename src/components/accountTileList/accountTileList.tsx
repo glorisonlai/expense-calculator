@@ -9,18 +9,21 @@ import { createAccount, AccountType } from 'models/account';
 import AccountTile from 'components/accountTile/accountTile';
 import {createSignal, For, Show} from 'solid-js';
 
-const AccountTileList: Component<{accountStates: () => readonly AccountState[], setAccountStates: Function}> = ({accountStates, setAccountStates}) => {
+const AccountTileList: Component<{accountType: AccountType, accountStates: () => readonly AccountState[], setAccountStates: Function}> = ({accountType, accountStates, setAccountStates}) => {
+	// prospective new account modal
 	const [accountModalValues, setAccountModalValues] = createSignal<Account | null>(null);
 	
 	// Index to use
 	const [updateAccountIndex, setUpdateAccountIndex] = createSignal<number>(accountStates().length);
 
-	const toggleAccountTile = (i: number) => {
-		const account = accountStates()[i];
-		setAccountStates(i)({...account, disabled: !account.disabled});
+	const toggleAccountTile = (index: number) => {
+		setAccountStates(accountStates().map((e, i) => i !== index ? e : {
+			...e,
+			disabled: !e.disabled,
+		}));
 	};
 
-	const initializeDefaultModalValues = (): Account => createAccount(AccountType.Income, '', Timespan.Month, '', 0);
+	const initializeDefaultModalValues = (): Account => createAccount(accountType, '', Timespan.Month, '', 0);
 
 	const createNewAccountModal = () => {
 		setUpdateAccountIndex(accountStates().length);
@@ -43,15 +46,19 @@ const AccountTileList: Component<{accountStates: () => readonly AccountState[], 
 		setAccountStates([...accountStates(), newAccountState]);
 	}
 
-	const updateAccount = (i: number, account: Account) => {
-		if (i === accountStates().length) return pushNewAccount(account);
+	const updateAccount = (index: number, account: Account) => {
+		closeModal();
+		if (index >= accountStates().length) return pushNewAccount(account);
 
-		accountStates()[i].account = account;
-		setAccountStates(accountStates());
+		setAccountStates(accountStates().map((e, i) => i !== index ? e : {
+			...e,
+			account
+			}
+		));
+		console.log(accountStates());
 	}
 
 	const deleteAccount = (index: number) => {
-		console.log(accountStates().filter((_, i) => i !== index));
 		setAccountStates(accountStates().filter((_, i) => i !== index));
 	}
 

@@ -4,14 +4,14 @@ type NormalisedAmount = number;
 
 export enum AccountType {
     Income = "Income",
-	Expense = "Expense",
+  	Expense = "Expense",
 }
 
 export interface Account {
     readonly type: AccountType;
     readonly amount: NormalisedAmount;
     readonly title: string;
-	readonly timespan: Timespan;
+  	readonly timespan: Timespan;
     readonly description?: string;
 }
 
@@ -28,7 +28,7 @@ export const createAccount = (type: AccountType, title: string, timespan: Timesp
         type,
         amount,
         title,
-		timespan,
+    		timespan,
         description
     }
 )

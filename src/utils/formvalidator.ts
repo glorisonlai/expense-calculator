@@ -1,69 +1,99 @@
 import { createStore } from "solid-js/store";
 
-const checkValid = ({ element, validators = [] }: {element: HTMLInputElement, validators: Function[]}, setErrors: Function, errorClass: string) => {
+const checkValid = ({ref, accessors}: {ref: HTMLInputElement, accessors: ValidateProps}, setErrors: Function, errorClass: string) => {
   return async () => {
-    element.setCustomValidity("");
-    element.checkValidity();
-    let message = element.validationMessage;
+    ref.setCustomValidity("");
+    ref.checkValidity();
+
+    const message = ref.validationMessage;
+		const {validators} = accessors;
+		
+		if (!(validators && validators.length)) return;
+
     if (!message) {
       for (const validator of validators) {
-        const text = await validator(element);
-        if (text) {
-          element.setCustomValidity(text);
+        const {success, message} = await validator(ref);
+
+        if (!success) {
+		      errorClass && ref.classList.toggle(errorClass, true);
+					setErrors(ref.name, "success", true);
+			    if (message) {
+	          ref.setCustomValidity(message);
+			    }
           break;
         }
       }
-      message = element.validationMessage;
     }
-    if (message) {
-      errorClass && element.classList.toggle(errorClass, true);
-      setErrors({ [element.name]: message });
-    }
-  };
+  }
 }
 
-export const useForm = <F>({ form, errorClass }: {form: F, errorClass: string}) => {
-	const newErrorObj = Object.keys(form).
-							reduce((errorObj, key) => (
-								{...errorObj, [key]: ''}
-							), {});
+const adjustRef = ({ref, accessors}: {ref: HTMLInputElement, accessors: ValidateProps}) => {
+	if (!accessors.adjuster) return;
 
-	const [formVals, setFormVals] = createStore<F>(form);
-	const [errors, setErrors] = createStore<{[key: keyof F]: string}>(newErrorObj);
+	ref.value = accessors.adjuster(ref);
+}
 
-	const validate = (ref: HTMLInputElement, accessor: ((ref: HTMLElement) => boolean)[]) => {
-		const config = {element:ref, validators: accessor};
+export type FormErrors = {
+	[key: string]: boolean,
+}
 
-		ref.onblur = checkValid(config, setErrors, errorClass);
+type ValidateProps = {
+	validators?: ((...args: any[]) => {success: boolean, message: string})[],
+	adjuster?: (...args: any[]) => any,
+}
+
+export type ValidatedForm = {
+	[key: string]: {
+		// State of the field
+		ref: HTMLInputElement,
+		// Functions that supervise ref
+		accessors: ValidateProps,
+	}
+}
+
+export const useForm = (errorClass: string) => {
+	const [formVals, setFormVals] = createStore<ValidatedForm>({});
+	const [errors, setErrors] = createStore<FormErrors>({});
+
+	const validate = (ref: HTMLInputElement, accessors: ValidateProps) => {
+		setFormVals(ref.name, {
+			ref,
+			accessors,
+		});
+
+		setErrors(ref.name, false);
+
+		const config = formVals[ref.name];
+
+		ref.onblur = checkValid(config, setErrors, errorClass) && adjustRef(config);
 
 		ref.oninput = () => {
-			setFormVals(ref.name, ref.value);
-
-			if (!errors[ref.name]) return;
-			setErrors({ [ref.name]: undefined });
+			setErrors(ref.name, false);
 			errorClass && ref.classList.toggle(errorClass, false);
 		};
 	};
 
 	const formSubmit = (ref: HTMLElement, accessor: Function) => {
-	const callback = accessor() || (() => {});
+		const callback = accessor() || (() => {});
 
-	ref.setAttribute("novalidate", "");
+		ref.setAttribute("novalidate", "");
 
-	ref.onsubmit = async (e) => {
-	  e.preventDefault();
-	  let errored = false;
+		ref.onsubmit = async (e) => {
+		  e.preventDefault();
 
-	  for (const k in formVals) {
-		const field = form[k];
-		await checkValid(field, setErrors, errorClass)();
-		if (!errored && field.element.validationMessage) {
-		  field.element.focus();
-		  errored = true;
-		}
-	  }
-	  !errored && callback(ref);
-	};
+		  for (const formFieldName in formVals) {
+				const config = formVals[formFieldName];
+
+				await checkValid(config, setErrors, errorClass)();
+
+				if (errors[formFieldName]) {
+				  config.ref.focus();
+					return;
+				}
+		  }
+
+		  callback(ref);
+		};
 	};
 
 	return { formVals, validate, formSubmit, errors };
